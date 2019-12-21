@@ -4,8 +4,8 @@ CarControl::CarControl()
 {
     carPos.x = 120;
     carPos.y = 300;
-    steer_publisher = node_obj1.advertise<std_msgs::Float32>("team1/set_angle",10);
-    speed_publisher = node_obj2.advertise<std_msgs::Float32>("team1/set_speed",10);
+    steer_publisher = node_obj1.advertise<std_msgs::Float32>("HTH/set_angle",10);
+    speed_publisher = node_obj2.advertise<std_msgs::Float32>("HTH/set_speed",10);
 }
 
 CarControl::~CarControl() {}

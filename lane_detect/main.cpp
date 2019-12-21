@@ -65,7 +65,7 @@ int main(int argc, char **argv)
 
         ros::NodeHandle nh;
         image_transport::ImageTransport it(nh);
-        image_transport::Subscriber sub = it.subscribe("team1/camera/rgb", 1, imageCallback);
+        image_transport::Subscriber sub = it.subscribe("HTH/camera/rgb", 1, imageCallback);
 
         ros::spin();
     } else {

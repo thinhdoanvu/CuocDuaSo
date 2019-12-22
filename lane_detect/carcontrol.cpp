@@ -1,9 +1,22 @@
 #include "carcontrol.h"
+#include <ros/ros.h>
+#include "std_msgs/Int32.h"
+
+
+
+//===================================================================
+bool STREAM = true;
+//===================================================================
+int ketQua;
+void BBCallback(const std_msgs::Int32::ConstPtr& msg)
+{
+    ketQua = msg->data;
+}
 
 CarControl::CarControl()
 {
     carPos.x = 120;
-    carPos.y = 300;
+    carPos.y = 300;   
     steer_publisher = node_obj1.advertise<std_msgs::Float32>("HTH/set_angle",10);
     speed_publisher = node_obj2.advertise<std_msgs::Float32>("HTH/set_speed",10);
 }
@@ -25,25 +38,53 @@ void CarControl::driverCar(const vector<Point> &left, const vector<Point> &right
 {
     int i = left.size() - 11;
     float error = preError;
+    //=================================================================
+    ros::NodeHandle nh;
+    ros::Subscriber sub2 = nh.subscribe("bienBao", 10, BBCallback); 
+    ROS_INFO("I heard: %d", ketQua);
+    //=================================================================
+    // left[i] = 26389976 || right = 26389704
+
     while (left[i] == DetectLane::null && right[i] == DetectLane::null) {
-        //i--;
-        //if (i < 0) return;
-	velocity = 0;
-	error = -70;
+        i--;
+        while(left[i] == DetectLane::null || right[i] == DetectLane::null)
+        {
+            i--;
+        }
+       	if (i < 0) return;
     }
-    if (left[i] != DetectLane::null && right[i] !=  DetectLane::null)
+    
+     
+    if (ketQua == 1)
+    {
+        velocity = 0;
+        error = -90;
+        // while(left[i] == DetectLane::null || right[i] == DetectLane::null)
+        // {
+        //     velocity = 0;
+        //     error = -90;
+        //     break;
+        // }
+    }
+    else if(ketQua == 2)
+    {
+        velocity = 0;
+	    error = 90;
+    }
+    else if(left[i] != DetectLane::null && right[i] !=  DetectLane::null)
     {
         error = errorAngle((left[i] + right[i]) / 2);
-    } 
+    }
     else if (left[i] != DetectLane::null)
     {
-        error = errorAngle(left[i] + Point(laneWidth / 2, 0));
-	velocity = 60;
-	error = -6;
+        //error = errorAngle(left[i] + Point(laneWidth / 2, 0));
+        
+        error = -4;
     }
-    else
+    else 
     {
-        error = errorAngle(right[i] - Point(laneWidth / 2, 0));
+        //error = errorAngle(right[i] - Point(laneWidth / 2, 0));
+        error = 4;
     }
 
     std_msgs::Float32 angle;
@@ -54,4 +95,6 @@ void CarControl::driverCar(const vector<Point> &left, const vector<Point> &right
 
     steer_publisher.publish(angle);
     speed_publisher.publish(speed);    
-} 
+ 
+    ros::spin();
+}
